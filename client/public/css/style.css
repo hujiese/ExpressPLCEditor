@@ -1,0 +1,65 @@
+/* Any demo specific styling needed for this tutorial only */
+
+html,
+body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: Lucida Sans,Lucida Grande,Arial !important;
+	font-size: 12px !important;
+	background: #EEEEEE;
+	color: #333;
+	border: none;
+}
+
+/*#main {
+	height: 100%;
+	width: 100%;
+	border: 0;
+}*/
+
+#header {
+	margin: 0;
+}
+
+#appLayout{
+	height: 100%;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	border-color: #FF0000;
+}
+
+#leftPanel{
+	height: 100%;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+}
+
+#centerPanel{
+	height: 100%;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+}
+
+div#rMenu {
+	position: absolute;
+	visibility: hidden;
+    top: 0; 
+	/* background-color: #fff; */
+	/* text-align: left; */
+	/* padding: 5px; */
+}
+/*#leftCol {
+	width: 14em;
+}*/
+
+
+/*.claro .demoLayout .edgePanel {
+    background-color: #d0e9fc;
+    border ： none
+}*/
+
+/*#viewsChart {
+	width: 550px;
+	height: 550px;
+}*/

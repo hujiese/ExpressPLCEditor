@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Express PLC Editor</title>
+	<link rel="stylesheet" href="/css/demo.css" type="text/css">
+	<link rel="stylesheet" href="/css/zTreeStyle/zTreeStyle.css" type="text/css">
+	<link rel="stylesheet" href="/css/style.css" media="screen">
+	<link rel="stylesheet" href="/dojo/dijit/themes/claro/claro.css" media="screen">
+	<script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.ztree.core.js"></script>
+	<!-- load dojo -->
+	<script type="text/javascript" src="/dojo/dojo/dojo.js"></script>
+	<script type="text/javascript" src="/js/framework_init.js"></script>
+	<script type="text/javascript" src="/js/menubar_file_event.js"></script>
+	<script type="text/javascript" src="/js/tree_menu_event.js"></script> 
+	<script type="text/javascript" src="/js/jquery.ztree.exhide.js"></script>
+	 <script type="text/javascript" src="/js/menubar_about_event.js"></script>
+
+
+</head>
+
+<body class="claro">
+	<div data-dojo-id="mainframe" id="appLayout" class="demoLayout" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design: 'headline',gutters:false">
+		<div id="header" data-dojo-type="dijit/MenuBar" id="navMenu" data-dojo-props="region:'top'">
+			<div data-dojo-type="dijit/PopupMenuBarItem">
+				<span>文件</span>
+				<div data-dojo-type="dijit/DropDownMenu" id="fileMenu">
+					<div data-dojo-id="newPro" data-dojo-type="dijit/MenuItem" data-dojo-props="iconClass:'dijitIconSave'">
+						<span>新建工程</span>
+					</div>
+					<div data-dojo-id="openPro" data-dojo-type="dijit/MenuItem">打开工程</div>
+					<div data-dojo-id="closePro" data-dojo-type="dijit/MenuItem">关闭工程</div>
+					<div data-dojo-type="dijit/MenuSeparator"></div>
+					<div data-dojo-id="newFile" data-dojo-type="dijit/MenuItem">新建文件</div>
+					<div data-dojo-type="dijit/MenuSeparator"></div>
+					<div data-dojo-id="putToGit" data-dojo-type="dijit/MenuItem">上传项目至GitHub</div>
+					<div data-dojo-id="upload" data-dojo-type="dijit/MenuItem">上传本地文件</div>
+				</div>
+			</div>
+			<div data-dojo-id="about" data-dojo-type="dijit/MenuBarItem">
+				<span>关于</span>
+			</div>
+		</div>
+		<div data-dojo-id="onCloseEx" data-dojo-type="dijit/layout/TabContainer" data-dojo-props="region:'center', tabStrip:true, style:'overflow: hidden;'">
+			<div id="basicFormTab" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="title:'欢迎使用', closable:true,style:'padding:0px;display:none;overflow: hidden;'">
+				<iframe src="/welcome.html" frameborder="0" scrolling="auto" width="100%" height="100%"></iframe>
+			</div>
+
+		</div>
+		<div data-dojo-type="dijit/layout/AccordionContainer" data-dojo-props="region:'left', splitter:true, minSize:80" style="width: 200px;"
+		 id="leftAccordion">
+			<div id="leftPanel" data-dojo-type="dijit/layout/ContentPane" title="工程视图">
+				<ul id="treeDemo" class="ztree"></ul>
+			</div>
+		</div>
+	</div>
+	<div id="rMenu">
+		<ul>
+			<div data-dojo-type="dijit/DropDownMenu" id="editMenu2">
+				<div id="remanePro" data-dojo-id="remanePro" data-dojo-type="dijit/MenuItem" data-dojo-props="iconClass:'dijitEditorIcon dijitEditorIconWikiword'">重命名</div>
+				<div id="deletePro" data-dojo-id="deletePro" data-dojo-type="dijit/MenuItem" data-dojo-props="iconClass:'dijitEditorIcon dijitEditorIconDelete'">删除工程</div>
+				<div id="deleteFile" data-dojo-id="deleteFile" data-dojo-type="dijit/MenuItem" data-dojo-props="iconClass:'dijitEditorIcon dijitEditorIconDelete'">删除文件</div>
+				<div id="downloadFile" data-dojo-id="downloadFile" data-dojo-type="dijit/MenuItem" data-dojo-props="iconClass:'dijitEditorIcon dijitEditorIconViewSource'">下载文件</div>
+			</div>
+		</ul>
+	</div>
+
+	<!-- 创建工程对话框 -->
+	<div data-dojo-type="dijit/Dialog" data-dojo-id="newProject" title="创建新的工程">
+		<div class="dijitDialogPaneContentArea">
+			<table>
+				<tr>
+					<td>
+						<label for="name">请输入工程名: </label>
+					</td>
+					<td>
+						<input type="text" name="name" id="proName">
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="dijitDialogPaneActionBar">
+			<button data-dojo-type="dijit/form/Button" data-dojo-id="newProjectOk">
+				确定
+			</button>
+			<button data-dojo-type="dijit/form/Button" type="button" onClick="newProject.hide()">
+				取消
+			</button>
+		</div>
+	</div>
+
+	<!-- 创建文件对话框 -->
+	<div data-dojo-type="dijit/Dialog" data-dojo-id="createFile" title="新建文件">
+		<div class="dijitDialogPaneContentArea">
+			<table>
+				<tr>
+					<td>
+						<label for="fileName">文件名: </label>
+					</td>
+					<td>
+						<input data-dojo-type="dijit/form/TextBox" type="text" name="fileName" id="fileName">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="fileType">文件类型: </label>
+					</td>
+					<td>
+						<select data-dojo-type="dijit/form/FilteringSelect" data-dojo-id="fileType" name="fileType">
+							<option value="Program" selected>程序</option>
+							<option value="FunctionBlock">功能块</option>
+							<option value="Function">函数</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="relLanguage">实现语言: </label>
+					</td>
+					<td>
+						<select data-dojo-type="dijit/form/FilteringSelect" data-dojo-id="relLanguage" name="relLanguage">
+							<option value="ST" selected>结构化文本(ST)</option>
+							<option value="IL">指令表(IL)</option>
+							<option value="LD">梯形逻辑图(LD)</option>
+							<option value="FBD">功能块图(FBD)</option>
+							<option value="SFC">顺序功能图(SFC)</option>
+							<option value="CPP">C++文件(CPP)</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="dijitDialogPaneActionBar">
+			<button data-dojo-type="dijit/form/Button" data-dojo-id="newFileOk">
+				确认
+			</button>
+			<button data-dojo-type="dijit/form/Button" type="button" onClick="createFile.hide()">
+				取消
+			</button>
+		</div>
+	</div>
+
+	<!-- 打开工程对话框 -->
+	<div data-dojo-type="dijit/Dialog" data-dojo-id="openProDlg" title="打开工程">
+		<div class="dijitDialogPaneContentArea">
+			<table>
+				<tr>
+					<td>
+						<label for="openProject">请选择需要打开的工程: </label>
+					</td>
+					<td>
+						<input id="openProSelect">
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="dijitDialogPaneActionBar">
+			<button data-dojo-type="dijit/form/Button" data-dojo-id="openProOk">
+				确认
+			</button>
+			<button data-dojo-type="dijit/form/Button" type="button" onClick="openProDlg.hide()">
+				取消
+			</button>
+		</div>
+	</div>
+
+	<!-- 上传文件 -->
+	<!-- <div data-dojo-type="dijit/Dialog" data-dojo-id="uploadFile" title="文件上传">
+		<div class="dijitDialogPaneContentArea">
+			<table>
+				<tr>
+					<td>
+						<input type="file" name="file_upload" id="file_upload" />
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="dijitDialogPaneActionBar">
+			<button data-dojo-type="dijit/form/Button" data-dojo-id="uploadFileOk">
+				确认
+			</button>
+			<button data-dojo-type="dijit/form/Button" type="button" onClick="uploadFile.hide()">
+				取消
+			</button>
+		</div>
+	</div> -->
+
+	<!-- 工程重命名对话框 -->
+	<div data-dojo-type="dijit/Dialog" data-dojo-id="renameProDlg" title="重命名工程">
+		<div class="dijitDialogPaneContentArea">
+			<table>
+				<tr>
+					<td>
+						<label for="renameProject">请输入工程名: </label>
+					</td>
+					<td>
+						<input id="renameProject">
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="dijitDialogPaneActionBar">
+			<button data-dojo-type="dijit/form/Button" data-dojo-id="renameProOk">
+				确认
+			</button>
+			<button data-dojo-type="dijit/form/Button" type="button" onClick="renameProDlg.hide()">
+				取消
+			</button>
+		</div>
+	</div>
+
+	<!-- 删除工程对话框 -->
+	<div data-dojo-type="dijit/Dialog" data-dojo-id="delProDlg" title="删除工程">
+		<div class="dijitDialogPaneContentArea">
+			<table>
+				<tr>
+					<td>
+						<label for="delProject">确认删除工程?</label>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="dijitDialogPaneActionBar">
+			<button data-dojo-type="dijit/form/Button" data-dojo-id="delProOk">
+				确认
+			</button>
+			<button data-dojo-type="dijit/form/Button" type="button" onClick="delProDlg.hide()">
+				取消
+			</button>
+		</div>
+	</div>
+
+		<!-- 删除文件对话框 -->
+		<div data-dojo-type="dijit/Dialog" data-dojo-id="delFileDlg" title="删除文件">
+			<div class="dijitDialogPaneContentArea">
+				<table>
+					<tr>
+						<td>
+							<label for="delFile">确认删除文件?</label>
+						</td>
+					</tr>
+				</table>
+			</div>
+	
+			<div class="dijitDialogPaneActionBar">
+				<button data-dojo-type="dijit/form/Button" data-dojo-id="delFileOk">
+					确认
+				</button>
+				<button data-dojo-type="dijit/form/Button" type="button" onClick="delFileDlg.hide()">
+					取消
+				</button>
+			</div>
+		</div>
+		<div>
+				<input type="file" name="file" id="file_upload" style="display:none;">
+		</div>
+
+	<!-- 上传至git对话框 -->
+	<div data-dojo-type="dijit/Dialog" data-dojo-id="pushGitDlg" title="上传工程至GITHUB">
+		<div class="dijitDialogPaneContentArea">
+			<table>
+				<tr>
+					<td>
+						<label for="gitUsername">请输GITHUB账号: </label>
+					</td>
+					<td>
+						<input id="gitUsername">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="gitPassword">请输GITHUB密码: </label>
+					</td>
+					<td>
+						<input id="gitPassword">
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="dijitDialogPaneActionBar">
+			<button data-dojo-type="dijit/form/Button" data-dojo-id="gitPushOk">
+				确认
+			</button>
+			<button data-dojo-type="dijit/form/Button" type="button" onClick="pushGitDlg.hide()">
+				取消
+			</button>
+		</div>
+	</div>
+</body>
+
+</html>

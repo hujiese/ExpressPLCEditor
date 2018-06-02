@@ -1,0 +1,46 @@
+<shapes>
+	<shape name="coil" aspect="fixed">
+		<background>
+			<path>
+				<move x="80" y="0"/>
+				<quad x1="120" y1="0" x2="120" y2="40"/>
+				<quad x1="120" y1="80" x2="80" y2="80"/>
+				<move x="40" y="0"/>
+				<quad x1="0" y1="0" x2="0" y2="40"/>
+				<quad x1="0" y1="80" x2="40" y2="80"/>
+				<!--<quad x1="50" y1="50" x2="0" y2="0"/>-->
+				<!--<close/>-->
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape name="contact" aspect="fixed">
+		<background>
+			<path>
+				<move x="0" y="0"/>
+				<line x="0" y="80"/>
+				<move x="120" y="0"/>
+				<line x="120" y="80"/>
+				<!--<line x="0" y="100"/>-->
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape name="powerRail" aspect="fixed">
+		<background>
+			<path>
+				<move x="0" y="0"/>
+				<line x="0" y="160"/>
+				<!--<line x="0" y="100"/>-->
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	
+</shapes>

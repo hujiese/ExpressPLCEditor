@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Express PLC Editor</title>
+	<script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
+	<link rel="stylesheet" href="/css/demo.css" type="text/css">
+	<link rel="stylesheet" href="/css/style.css" media="screen">
+	<link rel="stylesheet" href="/dojo/dijit/themes/claro/claro.css" media="screen">
+
+	<!--[if IE]>
+    		<script src="/js/html5shiv.js"></script>
+    	<![endif]-->
+
+	<script type="text/javascript">
+		mxBasePath = '/mxgraph';
+	</script>
+
+	<!-- Loads and initializes the library -->
+	<script type="text/javascript" src="/mxgraph/js/mxClient.js"></script>
+	<script type="text/javascript" src="/js/init.js"></script>
+	<script type="text/javascript" src="/js/create.js"></script>
+
+	<!-- load dojo -->
+	<script src="/dojo/dojo/dojo.js"></script>
+	<script>
+		dojoConfig = {
+			async: true,
+			parseOnLoad: false
+		}
+	</script>
+	<script>
+		var PouInputsSelectStateStore;
+		var PouInputsFilteringSelect;
+
+		var PouOutputsSelectStateStore;
+		var PouOutputsFilteringSelect;
+		require(["dojo/parser", "dojo/store/Memory", "dijit/form/FilteringSelect", "dojo/domReady!"], function (parser, Memory, FilteringSelect) {
+			parser.parse();
+			PouInputsSelectStateStore = new Memory({
+				data: []
+			});
+			PouInputsFilteringSelect = new FilteringSelect({
+				id: "PouInputsSelect",
+				name: "state",
+				value: "CA",
+				store: PouInputsSelectStateStore,
+				searchAttr: "name"
+			}, "PouInputsSelect");
+
+			PouOutputsSelectStateStore = new Memory({
+				data: [{ name: "Alabama", id: "AL" }]
+			});
+			PouOutputsFilteringSelect = new FilteringSelect({
+				id: "PouOutputsSelect",
+				name: "state",
+				value: "CA",
+				store: PouOutputsSelectStateStore,
+				searchAttr: "name"
+			}, "PouOutputsSelect");
+		});
+	</script>
+</head>
+
+<body class="claro" style="overflow: hidden;" onload="main(document.getElementById('graphContainer'))">
+	<div data-dojo-id="mainframe" id="appLayout" class="demoLayout" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design: 'headline',gutters:false">
+		<div data-dojo-id="onCloseEx" data-dojo-type="dijit/layout/TabContainer" data-dojo-props="region:'center', tabStrip:true">
+			<div id="graphContainer" style="overflow:auto;position:relative;width:1480px;height:730px;border:1px solid gray;background:url('/images/wires-grid.gif');background-position:-1px 0px;cursor:crosshair;">
+			</div>
+		</div>
+		<div data-dojo-type="dijit/layout/AccordionContainer" data-dojo-props="region:'right', splitter:true, minSize:80" style="width: 200px;"
+		 id="leftAccordion" title="工具箱">
+			<div id="general" data-dojo-type="dijit/layout/ContentPane" title="常规">
+				<script type="text/javascript" src="/js/generate_tabel.js">
+
+				</script>
+			</div>
+			<div id="bool" data-dojo-type="dijit/layout/ContentPane" title="布尔运算符">
+				布尔运算符
+			</div>
+			<div id="math" data-dojo-type="dijit/layout/ContentPane" title="数学运算符">
+				数学运算符
+			</div>
+			<div id="other" data-dojo-type="dijit/layout/ContentPane" title="其他运算符">
+				其他运算符
+			</div>
+			<div id="fub" data-dojo-type="dijit/layout/ContentPane" title="功能块">
+				功能块
+			</div>
+			<div id="pous" data-dojo-type="dijit/layout/ContentPane" title="POUs">
+				POUs
+			</div>
+		</div>
+
+		<!-- 打开编辑对话框 -->
+		<div data-dojo-type="dijit/Dialog" data-dojo-id="editPouDlg" title="编辑">
+			<div class="dijitDialogPaneContentArea">
+				<table>
+					<tr>
+						<td>
+							<label for="editPouName">POUS: </label>
+						</td>
+						<td>
+							<input id="editPouName">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="PouInputsSelect">输入: </label>
+						</td>
+						<td>
+							<input id="PouInputsSelect">
+						</td>
+						<td>
+							<label for="editPouInputs">编辑输入: </label>
+						</td>
+						<td>
+							<input id="editPouInputs">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="PouOutputsSelect">输出: </label>
+						</td>
+						<td>
+							<input id="PouOutputsSelect">
+						</td>
+						<td>
+							<label for="editPouOutputs">编辑输出: </label>
+						</td>
+						<td>
+							<input id="editPouOutputs">
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="dijitDialogPaneActionBar">
+				<button data-dojo-type="dijit/form/Button" data-dojo-id="editPouOk">
+					确认
+				</button>
+				<button data-dojo-type="dijit/form/Button" type="button" onClick="editPouDlg.hide()">
+					取消
+				</button>
+			</div>
+		</div>
+
+		<!-- 打开编辑IO数量对话框 -->
+		<div data-dojo-type="dijit/Dialog" data-dojo-id="editPouIONumDlg" title="编辑IO数量">
+			<div class="dijitDialogPaneContentArea">
+				<table>
+					<tr>
+						<td>
+							<label for="pouInputsIONum">输入IO数量: </label>
+						</td>
+						<td>
+							<input id="pouInputsIONum" type="text" readonly="readonly">
+						</td>
+						<td>
+							<label for="editPouInputsIONum">编辑输入IO数量: </label>
+						</td>
+						<td>
+							<input id="editPouInputsIONum">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="pouOutputsIONum">输出IO数量: </label>
+						</td>
+						<td>
+							<input id="pouOutputsIONum" type="text" readonly="readonly">
+						</td>
+						<td>
+							<label for="editPouOutputsIONum">编辑输出IO数量: </label>
+						</td>
+						<td>
+							<input id="editPouOutputsIONum">
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="dijitDialogPaneActionBar">
+				<button data-dojo-type="dijit/form/Button" data-dojo-id="editIONumPouOk">
+					确认
+				</button>
+				<button data-dojo-type="dijit/form/Button" type="button" onClick="editPouIONumDlg.hide()">
+					取消
+				</button>
+			</div>
+		</div>
+
+		<!-- 打开编辑线圈类型对话框 -->
+		<div data-dojo-type="dijit/Dialog" data-dojo-id="editCoilDlg" title="编辑线圈">
+			<div class="dijitDialogPaneContentArea" id="showCoilType">
+				<table>
+					<tr>
+						<td>
+							<input id="normalCoil" type="radio" name="coils" value="" checked data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="normalCoil">正常</label>
+						</td>
+
+					</tr>
+					<tr>
+						<td>
+							<input id="negitaveCoil" type="radio" name="coils" value="/" data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="negitaveCoil">否定</label>
+						</td>
+
+					</tr>
+					<tr>
+						<td>
+							<input id="setCoil" type="radio" name="coils" value="S" data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="setCoil">设置</label>
+						</td>
+
+					</tr>
+					<tr>
+						<td>
+							<input id="resetCoil" type="radio" name="coils" value="R" data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="resetCoil">重置</label>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<input id="riseEdgeCoil" type="radio" name="coils" value="P" data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="riseEdgeCoil">上升沿</label>
+						</td>
+
+					</tr>
+					<tr>
+						<td>
+							<input id="tailEdgeCoil" type="radio" name="coils" value="N" data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="tailEdgeCoil">下降沿</label>
+						</td>
+
+					</tr>
+				</table>
+			</div>
+
+			<div class="dijitDialogPaneActionBar">
+				<button data-dojo-type="dijit/form/Button" data-dojo-id="editCoilOk">
+					确认
+				</button>
+				<button data-dojo-type="dijit/form/Button" type="button" onClick="editCoilDlg.hide()">
+					取消
+				</button>
+			</div>
+		</div>
+
+		<!-- 打开编辑触点类型对话框 -->
+		<div data-dojo-type="dijit/Dialog" data-dojo-id="editContactDlg" title="编辑触点">
+			<div class="dijitDialogPaneContentArea" id="showContactType">
+				<table>
+					<tr>
+						<td>
+							<input id="normalContact" type="radio" name="contacts" value="" checked data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="normalContact">正常</label>
+						</td>
+
+					</tr>
+					<tr>
+						<td>
+							<input id="negitaveContact" type="radio" name="contacts" value="/" data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="negitaveContact">否定</label>
+						</td>
+
+					</tr>
+					<tr>
+						<td>
+							<input id="riseEdgeContact" type="radio" name="contacts" value="P" data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="riseEdgeContact">上升沿</label>
+						</td>
+
+					</tr>
+					<tr>
+						<td>
+							<input id="tailEdgeContact" type="radio" name="contacts" value="N" data-dojo-type="dijit/form/RadioButton">
+						</td>
+						<td>
+							<label for="tailEdgeContact">下降沿</label>
+						</td>
+
+					</tr>
+				</table>
+			</div>
+
+			<div class="dijitDialogPaneActionBar">
+				<button data-dojo-type="dijit/form/Button" data-dojo-id="editContactOk">
+					确认
+				</button>
+				<button data-dojo-type="dijit/form/Button" type="button" onClick="editContactDlg.hide()">
+					取消
+				</button>
+			</div>
+		</div>
+</body>
+
+</html>
